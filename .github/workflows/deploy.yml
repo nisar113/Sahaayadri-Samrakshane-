@@ -1,0 +1,35 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node (optional)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Prepare site directory
+        run: |
+          rm -rf site || true
+          mkdir site
+          cp -r index.html app.js styles.css site/ || true
+          # copy any additional static assets if present
+          cp -r assets site/ 2>/dev/null || true
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: gh-pages
+          allow_empty_commit: true
